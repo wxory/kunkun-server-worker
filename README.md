@@ -1,9 +1,6 @@
 # Kunlun Server Worker
 
-Kunlun 是一个轻量级（客户端内存占用 < 1MB）、高效（仅一个 .c 文件）的服务器监控系统，帮助用户实时监控服务器的性能指标，并通过直观的 Web 界面展示数据。系统由 **Kunlun Server**（后端）和 **Kunlun Client**（客户端）组成，支持跨平台部署，适用于各种 Linux 环境。
-
-
-
+Kunlun 是一个轻量级（客户端内存占用 < 1MB）、高效（仅一个 .c 文件）的服务器监控系统，帮助用户实时监控服务器的性能指标，并通过直观的 Web 界面展示数据。系统由 **Kunlun Server**（后端）和 **Kunlun Client**（客户端）组成，支持跨平台部署，适用于各种 Linux 环境。本仓库是基于 `Cloudflare Worker` + `D1`的 Kunlun Server 实现，免费额度已足够轻量监控。
 
 ## 快速开始
 
@@ -68,14 +65,14 @@ ON status (client_id, insert_utc_ts);
 
 #### 1.2 准备 Cloudflare Worker
 
-进入 Cloudflare 控制台 -> Compute -> Workers 和 Pages -> 点击 创建 按钮 -> 创建 Worker -> 自己起个名字 -> 点击 部署 按钮（稍等几秒） -> 自动跳转到成功页面 -> 点击右上角 编辑代码 按钮 -> [复制这里的代码替换 Worker 编辑页面的 worker.js 的内容](https://github.com/hochenggang/kunlun-server-worker/blob/main/kunlun.worker.js) -> 点击 部署 按钮 -> 至此服务端部署已完成
+进入 Cloudflare 控制台 -> Compute -> Workers 和 Pages -> 点击 `创建` 按钮 -> `创建 Worker` -> 自己起个名字 -> 点击 `部署` 按钮（稍等几秒） -> 自动跳转到成功页面 -> 点击右上角 `编辑代码` 按钮 -> [打开这个链接 ](https://github.com/hochenggang/kunlun-server-worker/blob/main/kunlun.worker.js)复制这里的代码替换 Worker 编辑页面的 worker.js 的内容 -> 点击 `部署` 按钮 -> 点击左上角的 `返回` 按钮 -> 回到 Worker 页面 -> 进入顶栏 `设置` -> `绑定` -> 点击 `添加` 按钮 -> 选择 `D1 数据库` -> `变量名称` 写 `DB`  然后 `D1 数据库`选择上一步创建那个 -> 点击 `部署` ->  至此服务端部署已完成
 
 
 #### 1.3 尝试访问 Worker 地址
 
-在浏览器中访问 `Worker 地址`，即可查看服务器监控仪表盘，默认应该没有数据显示。
+在浏览器中访问 `https://xxxx.workers.dev/`，即可查看服务器监控仪表盘，你也可以在 Worker 设置页面绑定你自己的域名。
 
-你还需要到你的某台服务器安装下面的客户端，填写对应的上报地址后才会有数据显示。
+默认应该没有数据显示，你还需要到你的某台服务器安装下面的客户端，填写对应的上报地址后才会有数据显示。
 
 ---
 
@@ -94,7 +91,7 @@ chmod +x kunlun-client-install.sh
 
 建议保持默认监测间隔（10秒）
 
-上报地址填写你的 Worker 地址（如 `https://kunlun.xxx.workers.dev/status`）即可完成客户端安装，客户端将每10秒上报一次状态信息到 Worker。
+上报地址填写你的 Worker 地址（如 `https://xxx.workers.dev/status`）即可完成客户端安装，客户端将每10秒上报一次状态信息到 Worker。
 
 如果填错了，重新运行 `./kunlun-client-install.sh` 选择卸载再重新安装。
 
@@ -154,7 +151,7 @@ Kunlun Server Monitoring 基于 [MIT 许可证](https://opensource.org/licenses/
 
 ## 联系我们
 
-如有问题或建议，请通过 GitHub Issues 联系我们。
+如有问题或建议，请通过 GitHub Issues 联系我。
 
 ---
 
