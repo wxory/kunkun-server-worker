@@ -200,20 +200,18 @@ async function handleGetLatestStatus(request, env, url) {
   let rows_written = 0
 
   const { meta, results } = await env.DB
-      .prepare(
-          `SELECT 
-            c.machine_id, c.name, s.*
-          FROM (
-            SELECT 
-              *, 
-              ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY insert_utc_ts DESC) AS rn
-            FROM 
-              status
-          ) s
-          JOIN 
-            client c ON s.client_id = c.id
-          WHERE 
-            s.rn = 1;`
+      .prepare(`
+      SELECT 
+          c.machine_id, 
+          c.name, 
+          s.*
+      FROM 
+          latest_status ls
+      JOIN 
+          status s ON ls.status_id = s.id
+      JOIN 
+      client c ON ls.client_id = c.id;
+      `
       )
       .run();
   rows_read += meta.rows_read

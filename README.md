@@ -9,7 +9,7 @@ Kunlun 是一个轻量级（客户端内存占用 < 1MB）、高效（仅一个 
 #### 1.1 准备 Cloudflare D1 数据库
 进入 Cloudflare 控制台 -> 存储和数据库 -> D1 SQL 数据库 -> 点击 创建 按钮 ->
 自动跳转到 创建 D1 数据库 页面 -> 输入数据库名称为 kunlun  -> 点击 创建 按钮
-自动跳转到 D1 kunlun 数据表页面 -> 进入顶栏菜单的 控制台 -> 依次复制以下 3 个数据库创建命令，粘贴到控制台执行 -> 三次都执行成功后，数据库已就绪
+自动跳转到 D1 kunlun 数据表页面 -> 进入顶栏菜单的 控制台 -> 依次复制以下 5 个数据库创建命令，粘贴到控制台执行 -> 5 次都执行成功后，数据库已就绪
 
 ```SQL
 CREATE TABLE IF NOT EXISTS client (
@@ -60,6 +60,27 @@ CREATE INDEX IF NOT EXISTS idx_client_id_time
 ON status (client_id, insert_utc_ts);
 ```
 
+
+20250121 更新：发现之前的查询非常的耗费查询行数，如果你是之前安装创建完毕了数据库的话，需要增加下面的两步操作减少数万倍的 D1 查询行数消耗
+
+```SQL
+CREATE TABLE latest_status (
+    client_id INTEGER PRIMARY KEY,
+    status_id INTEGER,
+    insert_utc_ts INTEGER
+);
+```
+
+
+```SQL
+CREATE TRIGGER update_latest_status
+AFTER INSERT ON status
+FOR EACH ROW
+BEGIN
+    INSERT OR REPLACE INTO latest_status (client_id, status_id, insert_utc_ts)
+    VALUES (NEW.client_id, NEW.id, NEW.insert_utc_ts);
+END;
+```
 
 
 
