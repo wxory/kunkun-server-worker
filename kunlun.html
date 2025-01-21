@@ -463,12 +463,12 @@
                     newServers.forEach(server => {
                         const machineId = server.machine_id;
                         const prevServer = prevServersRef.current[machineId] || {};
-                        const renderServer = renderServers.current[machineId] || {};
 
                         // 如果数据没有变化，则跳过
                         if (JSON.stringify(server) === JSON.stringify(prevServer)) {
                             return;
                         } else {
+                            // 否则缓存当前server信息的原原始数据
                             prevServersRef.current[machineId] = server;
                         }
 
@@ -496,7 +496,7 @@
                         };
                     });
 
-                    // 将 renderServers 转换为数组并更新状态
+                    // 把填充好更多信息的 servers 更新到视图
                     setServers(Object.values(renderServers.current));
                 } catch (error) {
                     console.error('Error fetching data:', error);
