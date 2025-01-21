@@ -516,10 +516,10 @@
             }, []);
 
             // Filter outdated servers
-            const filteredServers = useMemo(
-                () => servers.filter(server => !isOutdated(server.insert_utc_ts)),
-                [servers]
-            );
+            // const filteredServers = useMemo(
+            //     () => servers.filter(server => !isOutdated(server.insert_utc_ts)),
+            //     [servers]
+            // );
 
             return React.createElement(
                 'div',
