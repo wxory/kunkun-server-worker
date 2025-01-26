@@ -9,85 +9,14 @@ Kunlun 是一个轻量级（客户端内存占用 < 1MB）、高效（仅一个 
 #### 1.1 准备 Cloudflare D1 数据库
 进入 Cloudflare 控制台 -> 存储和数据库 -> D1 SQL 数据库 -> 点击 创建 按钮 ->
 自动跳转到 创建 D1 数据库 页面 -> 输入数据库名称为 kunlun  -> 点击 创建 按钮
-自动跳转到 D1 kunlun 数据表页面 -> 进入顶栏菜单的 控制台 -> 依次复制以下 5 个数据库创建命令，粘贴到控制台执行 -> 5 次都执行成功后，数据库已就绪
-
-```SQL
-CREATE TABLE IF NOT EXISTS client (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      machine_id TEXT NOT NULL UNIQUE,
-      name TEXT
-);
-```
-
-```SQL
-CREATE TABLE IF NOT EXISTS status (
-   id INTEGER PRIMARY KEY AUTOINCREMENT,
-   client_id INTEGER NOT NULL, 
-   insert_utc_ts INTEGER NOT NULL, 
-   uptime INTEGER, 
-   load_1min REAL, 
-   load_5min REAL, 
-   load_15min REAL, 
-   net_tx INTEGER, 
-   net_rx INTEGER, 
-   disk_delay INTEGER, 
-   cpu_delay INTEGER, 
-   disks_total_kb INTEGER, 
-   disks_avail_kb INTEGER, 
-   tcp_connections INTEGER, 
-   udp_connections INTEGER, 
-   cpu_num_cores INTEGER, 
-   task_total INTEGER, 
-   task_running INTEGER, 
-   cpu_us REAL, 
-   cpu_sy REAL, 
-   cpu_ni REAL, 
-   cpu_id REAL, 
-   cpu_wa REAL, 
-   cpu_hi REAL, 
-   cpu_st REAL, 
-   mem_total REAL, 
-   mem_free REAL, 
-   mem_used REAL, 
-   mem_buff_cache REAL, 
-   FOREIGN KEY (client_id) REFERENCES client(id)
-);
-```
-
-
-```SQL
-CREATE INDEX IF NOT EXISTS idx_client_id_time
-ON status (client_id, insert_utc_ts);
-```
-
-
-20250121 更新：发现之前的查询非常的耗费查询行数，如果你是之前安装创建完毕了数据库的话，需要增加下面的两步操作减少数万倍的 D1 查询行数消耗
-
-```SQL
-CREATE TABLE latest_status (
-    client_id INTEGER PRIMARY KEY,
-    status_id INTEGER,
-    insert_utc_ts INTEGER
-);
-```
-
-
-```SQL
-CREATE TRIGGER update_latest_status
-AFTER INSERT ON status
-FOR EACH ROW
-BEGIN
-    INSERT OR REPLACE INTO latest_status (client_id, status_id, insert_utc_ts)
-    VALUES (NEW.client_id, NEW.id, NEW.insert_utc_ts);
-END;
-```
-
+自动跳转到 D1 kunlun 数据表页面，数据库已就绪
 
 
 #### 1.2 准备 Cloudflare Worker
 
 进入 Cloudflare 控制台 -> Compute -> Workers 和 Pages -> 点击 `创建` 按钮 -> `创建 Worker` -> 自己起个名字 -> 点击 `部署` 按钮（稍等几秒） -> 自动跳转到成功页面 -> 点击右上角 `编辑代码` 按钮 -> [打开这个链接 ](https://github.com/hochenggang/kunlun-server-worker/blob/main/kunlun.worker.js)复制这里的代码替换 Worker 编辑页面的 worker.js 的内容 -> 点击 `部署` 按钮 -> 点击左上角的 `返回` 按钮 -> 回到 Worker 页面 -> 进入顶栏 `设置` -> `绑定` -> 点击 `添加` 按钮 -> 选择 `D1 数据库` -> `变量名称` 写 `DB`  然后 `D1 数据库`选择上一步创建那个 -> 点击 `部署` ->  至此服务端部署已完成
 
+初次安装请访问一次  `https://xxxx.workers.dev/init` 初始化数据库
 
 #### 1.3 尝试访问 Worker 地址
 
@@ -110,7 +39,6 @@ chmod +x kunlun-client-install.sh
 ./kunlun-client-install.sh
 ```
 
-建议保持默认监测间隔（10秒）
 
 上报地址填写你的 Worker 地址（如 `https://xxx.workers.dev/status`）即可完成客户端安装，客户端将每10秒上报一次状态信息到 Worker。
 
