@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kunlun Monitoring Dashboard</title>
+    <title>KunKun Monitoring Dashboard</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -81,7 +81,7 @@
 
         // 定义需要渲染的字段，实际服务器返回的字段中有一些不适合直接展示
         const TITLES = {
-            hostname: ['主机名', '', '当前服务器的主机名称'],
+            machineName: ['主机名', '', '当前服务器的主机名称'],
             uptimeDays: ['运行时间', '天', '服务器自上次启动以来的运行天数'],
 
             tasksInfo: ['进程 (运行中/全部)', '', '当前运行的进程数量与总进程数量'],
@@ -752,7 +752,7 @@
                 React.createElement(
                     'h1',
                     { className: 'text-xl font-bold mb-4 text-center' },
-                    'Kunlun Server Monitor'
+                    'KunKun Server Monitor'
                 ),
                 React.createElement(
                     'div',
