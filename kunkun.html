@@ -82,6 +82,7 @@
         // 定义需要渲染的字段，实际服务器返回的字段中有一些不适合直接展示
         const TITLES = {
             hostname: ['主机名', '', '当前服务器的主机名称'],
+            machine_name: ['机器名称', '', '服务器的自定义名称'],
             uptimeDays: ['运行时间', '天', '服务器自上次启动以来的运行天数'],
 
             tasksInfo: ['进程 (运行中/全部)', '', '当前运行的进程数量与总进程数量'],
@@ -555,10 +556,10 @@
             const [showFieldSelector, setShowFieldSelector] = useState(false);
 
             // 从 localStorage 中读取 selectedFields，如果不存在则使用默认值
-            const [selectedFields, setSelectedFields] = useState(() => {
-                const savedFields = localStorage.getItem('selectedFields');
-                return savedFields ? JSON.parse(savedFields) : ['hostname', 'loadAverages', 'memoryUsage'];
-            });
+const [selectedFields, setSelectedFields] = useState(() => {
+    const savedFields = localStorage.getItem('selectedFields');
+    return savedFields ? JSON.parse(savedFields) : ['hostname', 'machine_name', 'loadAverages', 'memoryUsage'];
+});
 
             const prevServersRef = useRef({}); // 存储上一次的服务器数据
             const renderServers = useRef({}); // 存储渲染用的服务器数据
@@ -708,6 +709,7 @@
                         // 更新 renderServers
                         renderServers.current[machineId] = {
                             ...server,
+                            machine_name: server.machine_name,
                             ...cpuPercentages,
                             ...networkSpeed,
                             ...processIOData(prevServer, server),
