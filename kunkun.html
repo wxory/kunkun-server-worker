@@ -79,12 +79,6 @@
             min-height: 300px;
         }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            /* 使用现代字体 */
-            background-color: #f8f9fa;
-            /* 浅灰色背景 */
-        }
 
         .min-h-screen {
             padding: 2rem;
@@ -118,7 +112,6 @@
             align-items: center;
             padding: 0.5rem;
             border-radius: 8px;
-            background-color: #f3f4f6;
             /* 浅灰色背景 */
             transition: background-color 0.2s ease;
         }
@@ -130,25 +123,6 @@
 
         input[type="checkbox"] {
             margin-right: 0.5rem;
-        }
-
-        /* 暗黑模式样式 */
-        .dark body {
-            background-color: #1a1a1a;
-            color: #ffffff;
-        }
-
-        .dark .bg-white {
-            background-color: #2d2d2d;
-            color: #ffffff;
-        }
-
-        .dark .kv-k {
-            color: #9ca3af;
-        }
-
-        .dark .kv-v {
-            color: #d1d5db;
         }
     </style>
 </head>
@@ -389,15 +363,6 @@
                 console.log('useEffect', 'init')
                 fetchHistoryData();
             }, [fetchHistoryData]);
-            //初始化时获取夜间模式
-            useEffect(() => {
-                const isDark = localStorage.getItem('isDark') === 'true';
-                if (isDark) {
-                    document.body.classList.add('dark');
-                } else {
-                    document.body.classList.remove('dark');
-                }
-            }, []);
             // 数据级别变化时重新获取数据
             const handleDataLevelChange = (event) => {
                 setDataLevel(event.target.value);
@@ -785,11 +750,17 @@
                     weightedIoTimePercent,
                 };
             }
+            const loadingRef = useRef(null);
 
+            useEffect(() => {
+                loadingRef.current = document.getElementById('loading');
+            }, []);
             // Fetch data without depending on expandedStates
             const fetchData = useCallback(async () => {
                 try {
-                    document.getElementById('loading').style.display = 'flex'; // 显示加载动画
+                    if (loadingRef.current) {
+                        loadingRef.current.style.display = 'flex'; // 显示加载动画
+                    }
                     const response = await axios.get(`${HOST}/status/latest`);
                     const newServers = response.data;
 
@@ -848,10 +819,14 @@
                     // console.log('renderServers',renderServers.current)
                     // 将 renderServers 转换为数组并更新状态
                     setServers(Object.values(renderServers.current));
-                    document.getElementById('loading').style.display = 'none'; // 隐藏加载动画
+                    if (loadingRef.current) {
+                        loadingRef.current.style.display = 'none'; // 隐藏加载动画
+                    }
                 } catch (error) {
                     console.error('Error fetching data:', error);
-                    document.getElementById('loading').style.display = 'none'; // 隐藏加载动画
+                    if (loadingRef.current) {
+                        loadingRef.current.style.display = 'none'; // 隐藏加载动画
+                    }
                 }
             }, []);
 
@@ -867,14 +842,7 @@
                 dispatch({ type: 'TOGGLE', machineId });
             }, []);
 
-            useEffect(() => {
-                const isDark = localStorage.getItem('isDark') === 'true';
-                if (isDark) {
-                    document.body.classList.add('dark-mode');
-                } else {
-                    document.body.classList.remove('dark-mode');
-                }
-            }, []);
+
 
             return React.createElement(
                 'div',
@@ -905,24 +873,6 @@
                             },
                             '⚙️'
                         ),
-                        //夜间模式
-                        React.createElement(
-                            'button',
-                            {
-                                className: 'p-1 text-gray-500 hover:text-gray-700',
-                                onClick: (e) => {
-                                    e.stopPropagation();
-                                    const isDark = localStorage.getItem('isDark') === 'true'
-                                    localStorage.setItem('isDark', !isDark)
-                                    if (!isDark) {
-                                        document.body.classList.add('dark');
-                                    } else {
-                                        document.body.classList.remove('dark');
-                                    }
-                                }
-                            },
-                            '🌙'
-                        )
                     ]
                     ),
                     servers.map(server =>
