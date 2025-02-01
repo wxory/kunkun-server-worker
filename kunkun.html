@@ -298,18 +298,18 @@
         };
 
         const Server = {
-            props: ['server', 'isExpanded', 'onToggleExpand', 'selectedFields', 'onFieldSelection'],
+            props: ['server', 'isExpanded', 'onToggleExpand', 'selectedFields', 'onFieldSelection', 'isOutdated'],
             setup(props) {
                 const showTrendModal = ref(false);
 
                 const KeyValue = {
                     props: ['k', 'v'],
                     template: `
-                        <div>
-                            <span class="kv-k text-gray-400 text-xs" :title="TITLES[k][2]">{{ TITLES[k][0] }}</span>
-                            <div class="kv-v text-gray-700">{{ v }} {{ TITLES[k][1] }}</div>
-                        </div>
-                    `,
+                <div>
+                    <span class="kv-k text-gray-400 text-xs" :title="TITLES[k][2]">{{ TITLES[k][0] }}</span>
+                    <div class="kv-v text-gray-700">{{ v }} {{ TITLES[k][1] }}</div>
+                </div>
+            `,
                 };
 
                 return {
@@ -318,24 +318,24 @@
                 };
             },
             template: `
-                <div :class="['bg-white rounded-lg shadow-sm', server.isOffline ? 'offline' : 'online']">
-                    <div class="p-3 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors" @click="onToggleExpand">
-                        <div class="grid-container text-sm">
-                            <KeyValue v-for="key in selectedFields" :key="key" :k="key" :v="server[key]" />
-                        </div>
-                    </div>
-                    <div v-if="isExpanded" class="p-3 border-t border-gray-200">
-                        <div class="grid-container text-sm">
-                            <KeyValue v-for="key in Object.keys(TITLES).filter(key => TITLES.hasOwnProperty(key) && !selectedFields.includes(key))" :key="key" :k="key" :v="server[key]" />
-                            <div>
-                                <span class="kv-k text-gray-400 text-xs">操作</span>
-                                <div class="operate-button" @click="showTrendModal = true">统计</div>
-                            </div>
-                        </div>
-                    </div>
-                    <TrendModal v-if="showTrendModal" :clientId="server.client_id" @onClose="showTrendModal = false" />
+        <div :class="['bg-white rounded-lg shadow-sm', props.isOutdated(server.timestamp) ? 'offline' : 'online']">
+            <div class="p-3 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors" @click="onToggleExpand">
+                <div class="grid-container text-sm">
+                    <KeyValue v-for="key in selectedFields" :key="key" :k="key" :v="server[key]" />
                 </div>
-            `,
+            </div>
+            <div v-if="isExpanded" class="p-3 border-t border-gray-200">
+                <div class="grid-container text-sm">
+                    <KeyValue v-for="key in Object.keys(TITLES).filter(key => TITLES.hasOwnProperty(key) && !selectedFields.includes(key))" :key="key" :k="key" :v="server[key]" />
+                    <div>
+                        <span class="kv-k text-gray-400 text-xs">操作</span>
+                        <div class="operate-button" @click="showTrendModal = true">统计</div>
+                    </div>
+                </div>
+            </div>
+            <TrendModal v-if="showTrendModal" :clientId="server.client_id" @onClose="showTrendModal = false" />
+        </div>
+    `,
         };
 
         const App = {
@@ -346,6 +346,8 @@
                 const selectedFields = ref(JSON.parse(localStorage.getItem('selectedFields')) || ['hostname', 'loadAverages', 'memoryUsage']);
                 const prevServersRef = ref({});
                 const renderServers = ref({});
+                // Define the isOutdated function
+                const isOutdated = (timestamp) => Math.floor(Date.now() / 1000) - timestamp > 1 * 60;
 
                 const handleFieldSelection = (key) => {
                     if (selectedFields.value.includes(key)) {
@@ -431,6 +433,7 @@
                         avgWriteLatency,
                         diskUtilization,
                         weightedIoTimePercent,
+
                     };
                 };
 
@@ -503,6 +506,7 @@
                     selectedFields,
                     handleFieldSelection,
                     toggleExpand,
+                    isOutdated,
                 };
             },
             template: `
