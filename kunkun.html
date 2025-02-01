@@ -343,8 +343,8 @@
                 const servers = ref([]);
                 const expandedStates = reactive({});
                 const showFieldSelector = ref(false);
-                const selectedFields = ref(JSON.parse(localStorage.getItem('selectedFields')) || ['hostname', 'loadAverages', 'memoryUsage']
-                                                           const prevServersRef = ref({});
+                const selectedFields = ref(JSON.parse(localStorage.getItem('selectedFields')) || ['hostname', 'loadAverages', 'memoryUsage']);
+                const prevServersRef = ref({});
                 const renderServers = ref({});
 
                 const handleFieldSelection = (key) => {
