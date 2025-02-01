@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kunlun Monitoring Dashboard</title>
+    <title>KunKun Monitoring Dashboard</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -15,43 +15,121 @@
             gap: 0.5rem;
         }
 
-        .kv-k {
-            font-size: 0.7rem;
-            font-weight: lighter;
-        }
-
-        .kv-v {
-            font-size: 0.8rem;
-            font-weight: normal;
-            color: #2d2d2d;
-        }
-
         .operate-button {
-            cursor: pointer;
+            color: #3b82f6;
+            /* 蓝色文字 */
+            transition: color 0.2s ease;
         }
 
-        .offline {
-            opacity: 0.8;
-            border-left: 2px solid #e49797;
+        .operate-button:hover {
+            color: #2563eb;
+            /* 悬停时深蓝色 */
+        }
+
+        #modal-root {
+            background-color: rgba(0, 0, 0, 0.5);
+            /* 半透明背景 */
+            transition: opacity 0.3s ease;
+        }
+
+        /* 图表容器 */
+        #trendChart {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .online {
-            border-left: 2px solid #83dc6e;
+            border-left: 4px solid #4ade80;
+            /* 绿色表示在线 */
+        }
+
+        .offline {
+            border-left: 4px solid #ef4444;
+            /* 红色表示离线 */
         }
 
         .bg-success {
-            background-color: #83dc6e;
+            background-color: #4ade80;
+            /* 绿色背景 */
+        }
+
+        .kv-k {
+            color: #6b7280;
+            /* 浅灰色键名 */
+            font-size: 0.75rem;
+            font-weight: 500;
+            /* 中等字重 */
+        }
+
+        .kv-v {
+            color: #1f2937;
+            /* 深灰色值 */
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            /* 深灰色标题 */
         }
 
         #trendChart {
             min-height: 300px;
         }
 
-        #modal-root {
-            position: fixed;
-            z-index: 9999;
-            width: 100%;
-            height: 100%;
+        body {
+            font-family: 'Inter', sans-serif;
+            /* 使用现代字体 */
+            background-color: #f8f9fa;
+            /* 浅灰色背景 */
+        }
+
+        .min-h-screen {
+            padding: 2rem;
+            /* 增加页面内边距 */
+        }
+
+        .bg-white {
+            border-radius: 12px;
+            /* 圆角卡片 */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            /* 卡片阴影 */
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            /* 悬停动画 */
+        }
+
+        .bg-white:hover {
+            transform: translateY(-2px);
+            /* 悬停时轻微上移 */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            /* 悬停时阴影加深 */
+        }
+
+        /* 字段选择器样式 */
+        .grid-cols-3 {
+            gap: 1rem;
+            /* 增加间距 */
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 8px;
+            background-color: #f3f4f6;
+            /* 浅灰色背景 */
+            transition: background-color 0.2s ease;
+        }
+
+        label:hover {
+            background-color: #e5e7eb;
+            /* 悬停时深灰色 */
+        }
+
+        input[type="checkbox"] {
+            margin-right: 0.5rem;
         }
     </style>
 </head>
@@ -70,7 +148,14 @@
     <script>
         const { useState, useEffect, useMemo, useCallback, useReducer, useRef } = React;
         const HOST = '';
-
+        const CHART_COLORS = {
+            red: 'rgba(239, 68, 68, 0.8)', /* 红色 */
+            orange: 'rgba(249, 115, 22, 0.8)', /* 橙色 */
+            yellow: 'rgba(234, 179, 8, 0.8)', /* 黄色 */
+            green: 'rgba(34, 197, 94, 0.8)', /* 绿色 */
+            blue: 'rgba(59, 130, 246, 0.8)', /* 蓝色 */
+            purple: 'rgba(139, 92, 246, 0.8)', /* 紫色 */
+        };
 
         // Helper functions
         const BtoGB = (bytes) => (bytes / 1024 / 1024 / 1024).toFixed(2);
@@ -556,10 +641,10 @@
             const [showFieldSelector, setShowFieldSelector] = useState(false);
 
             // 从 localStorage 中读取 selectedFields，如果不存在则使用默认值
-const [selectedFields, setSelectedFields] = useState(() => {
-    const savedFields = localStorage.getItem('selectedFields');
-    return savedFields ? JSON.parse(savedFields) : ['hostname', 'machine_name', 'loadAverages', 'memoryUsage'];
-});
+            const [selectedFields, setSelectedFields] = useState(() => {
+                const savedFields = localStorage.getItem('selectedFields');
+                return savedFields ? JSON.parse(savedFields) : ['machine_name', 'loadAverages', 'memoryUsage'];
+            });
 
             const prevServersRef = useRef({}); // 存储上一次的服务器数据
             const renderServers = useRef({}); // 存储渲染用的服务器数据
@@ -754,7 +839,7 @@ const [selectedFields, setSelectedFields] = useState(() => {
                 React.createElement(
                     'h1',
                     { className: 'text-xl font-bold mb-4 text-center' },
-                    'Kunlun Server Monitor'
+                    'KunKun Server Monitor'
                 ),
                 React.createElement(
                     'div',
