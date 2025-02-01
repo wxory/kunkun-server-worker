@@ -135,7 +135,12 @@
 </head>
 
 <body>
-    <div id="root"></div>
+    <div id="root">
+        <!--         加载动画 -->
+        <div id="loading" class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-75">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+    </div>
     <div id="modal-root"></div>
 
     <!-- React and ReactDOM CDN -->
@@ -757,6 +762,7 @@
             // Fetch data without depending on expandedStates
             const fetchData = useCallback(async () => {
                 try {
+                    document.getElementById('loading').style.display = 'flex'; // 显示加载动画
                     const response = await axios.get(`${HOST}/status/latest`);
                     const newServers = response.data;
 
@@ -815,8 +821,10 @@
                     // console.log('renderServers',renderServers.current)
                     // 将 renderServers 转换为数组并更新状态
                     setServers(Object.values(renderServers.current));
+                    document.getElementById('loading').style.display = 'none'; // 隐藏加载动画
                 } catch (error) {
                     console.error('Error fetching data:', error);
+                    document.getElementById('loading').style.display = 'none'; // 隐藏加载动画
                 }
             }, []);
 
